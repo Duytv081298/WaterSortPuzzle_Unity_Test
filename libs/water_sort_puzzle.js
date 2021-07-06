@@ -17,32 +17,15 @@ var containerMain = new createjs.Container()
 var bottleBase, bottleCurr
 // var mask
 
-// var map = [
-//     [7, 7, 7, 5],
-//     [-1, 6, 6, 6],
-//     [-1, 9, 9, 9],
-//     [-1, 10, 11, 0],
-//     [11, 11, 10, 11,],
-//     [-1, -1, 4, 8],
-//     [0, 0, 6, 9],
-//     [-1, 8, 8, 8],
-//     [-1, 1, 1, 1],
-//     [0, 5, 10, 1],
-//     [-1, 4, 4, 10],
-//     [5, 5, 7, 4],
-//     [3, 3, 3, 3],
-//     [2, 2, 2, 2]
-// ]
-
 var map = [
     [7, 7, 7, 5],
     [-1, 6, 6, 6],
     [-1, 9, 9, 9],
     [-1, 10, 11, 0],
-    [11, 11, 11, 11,],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
-    [-1, -1, -1, -1],
+    [11, 11, 10, 11,],
+    [-1, -1, 4, 8],
+    [0, 0, 6, 9],
+    [-1, 8, 8, 8],
     [-1, 1, 1, 1],
     [0, 5, 10, 1],
     [-1, 4, 4, 10],
@@ -50,6 +33,23 @@ var map = [
     [3, 3, 3, 3],
     [2, 2, 2, 2]
 ]
+
+// var map = [
+//     [7, 7, 7, 5],
+//     [-1, 6, 6, 6],
+//     [-1, 9, 9, 9],
+//     [-1, 10, 11, 0],
+//     [11, 11, 11, 11,],
+//     [-1, -1, -1, -1],
+//     [-1, -1, -1, -1],
+//     [-1, -1, -1, -1],
+//     [-1, 1, 1, 1],
+//     [0, 5, 10, 1],
+//     [-1, 4, 4, 10],
+//     [5, 5, 7, 4],
+//     [3, 3, 3, 3],
+//     [2, 2, 2, 2]
+// ]
 var listBottle = []
 var listBottleChoose = []
 
@@ -329,7 +329,8 @@ function onMouseDown(evt) {
     pressMove = true;
     var location = currentMouse(evt);
     var newChoose = checkClick(location)
-    if (newChoose) {
+    console.log(newChoose);
+    if (newChoose != null) {
         if (listBottleChoose.indexOf(newChoose) < 0) {
             if (listBottleChoose.length % 2 == 0) {
                 if (map[newChoose].lastIndexOf(-1) != 3) upBottleChoose(newChoose, listBottleChoose.length + 1)
@@ -513,6 +514,8 @@ function startMoveBottle(newChoose, index, arrColor) {
         map[newChoose][indexAdd] = colorAdd
         indexAdd--
     }
+    console.log(map[oldChoose]);
+    console.log(map[newChoose]);
     createjs.Tween.get(listBottle[oldChoose].bottle)
         .to({ rotation: rt, x: newBottle.x, y: newBottle.y - bottleBase.height * 0.9 / 2 }, 1000 + (arrIndexAdd.length - 1) * 500, createjs.Ease.quadInOut)
         .call(() => {
@@ -555,15 +558,9 @@ function degrees_to_radians(degrees) {
     return degrees * (pi / 180);
 }
 
-
-
-
-
-function reRenderMaskC(maxHeight, newChoose) {
+function reRenderMaskC(maxHeight, newChoose, indexRemove) {
     var oldsurvival = listBottle[newChoose].bottle.rotation / rt;
     var survival = 1 - oldsurvival;
-    console.log(survival);
-    console.log(pass);
     var ratio = maxHeight / bottleBase.height * 0.9
     var oldItemHeight = bottleBase.height * 0.9 / 4
     listBottle[newChoose].maskC.removeAllChildren()
@@ -571,11 +568,9 @@ function reRenderMaskC(maxHeight, newChoose) {
     var phantru = bottleBase.width * Math.sin(degrees_to_radians(rt))
     var rendIndex = 0
     if (survival == 0) {
-        for (let i = 0; i < arr.length; i++) {
-            if (arr[i] >= 0) {
-                arr[i] = -1
-                break;
-            }
+        for (let i = 0; i < indexRemove.length; i++) {
+            const index = indexRemove[i];
+            map[newChoose][index] = -1
         }
         for (let i = 0; i < arr.length; i++) {
             if (arr[i] >= 0) {
