@@ -991,6 +991,7 @@ function renderConfetti() {
     }
 }
 function gameWin() {
+    removeEvent()
     stage.removeChild(install_now);
     var particle = new createjs.Shape();
     particle.graphics.f("#000000").dr(0, 0, stage.canvas.width, stage.canvas.height);
@@ -1026,7 +1027,7 @@ function gameWin() {
     stage.addChild(particle, circle_decor, cup, decor, txt_wesome, btn_next)
 }
 function gameClose() {
-
+    removeEvent()
     stage.removeChild(install_now);
     var particle = new createjs.Shape();
     particle.graphics.f("#000000").dr(0, 0, stage.canvas.width, stage.canvas.height);
