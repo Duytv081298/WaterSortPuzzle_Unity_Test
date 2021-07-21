@@ -1,5 +1,5 @@
 var isMobile = detectMobile();
-var radiusMask = isMobile == true ? 18: 25
+var radiusMask = isMobile == true ? 18 : 25
 var width = window.innerWidth
     || document.documentElement.clientWidth
     || document.body.clientWidth;
@@ -326,12 +326,12 @@ function onMouseDown(evt) {
     if (newChoose != null && newChoose >= 0) {
         if (listBottleA.length == listBottleB.length) {
             if (listBottleA[listBottleA.length - 1] == newChoose) {
-                if (map[newChoose].lastIndexOf(-1) != 3 && listBottle[listBottleA[listBottleA.length - 1]].status == true) {
+                if (map[newChoose].lastIndexOf(-1) != 3 && listBottle[listBottleA[listBottleA.length - 1]].status == true && listBottle[newChoose].proAdd == true) {
                     listBottleA.push(newChoose);
                     upBottleChoose(newChoose)
                 }
             } else {
-                if (map[newChoose].lastIndexOf(-1) != 3) {
+                if (map[newChoose].lastIndexOf(-1) != 3 && listBottle[newChoose].proAdd == true) {
                     listBottleA.push(newChoose);
                     upBottleChoose(newChoose)
                 }
@@ -476,8 +476,7 @@ function startMoveBottle(index, indexColorCVArray) {
     var colorAdd = map[oldChoose][indexColorCVArray[0]]
     var indexAdd = map[newChoose].lastIndexOf(-1)
     var bottleClone = getItemClone(listBottleTemp[index])
-
-
+    listBottle[newChoose].proAdd = false
     var num_1 = bottleClone.arrColor[0].color == -1 ? bottleClone.arrColor[0].numColor : 0
     var indexBottom = indexColorCVArray[indexColorCVArray.length - 1]
     bottleClone.corner = getRotation(indexBottom, num_1)
@@ -502,6 +501,7 @@ function moveBottle(bottleClone, newBottle, index, num_1, arrayClone) {
     var xNew = newBottle.x - bottleBase.width / 2
     var yNew = newBottle.y - bottleBase.height * 0.9 / 3
     var corner = bottleClone.corner
+    var newChoose = listBottleB[index];
 
     var arrColor1;
     createjs.Tween.get(bottleClone.bottle)
@@ -525,6 +525,7 @@ function moveBottle(bottleClone, newBottle, index, num_1, arrayClone) {
         reRenderMaskCT1(bottleClone)
     }
     function handleChange2(event) {
+        listBottle[newChoose].proAdd = false
         reRenderMaskCT2(bottleClone, index, arrColor1, num_1)
         renderNewMaskC(bottleClone, index, arrayClone)
     }
@@ -565,6 +566,8 @@ function endMoveBottle(index) {
     var bottleClone = listBottleTemp[index]
     var oldChoose = listBottleA[index];
     var newX = listBottle[oldChoose].bottle.x
+
+    var newChoose = listBottleB[index];
     createjs.Tween.get(bottleClone.bottle)
         .to({
             rotation: 0,
@@ -577,6 +580,7 @@ function endMoveBottle(index) {
             if (win) gameWin()
             bottleClone.bottle.rotation = 0
             listBottle[oldChoose].status = true
+            listBottle[newChoose].proAdd = true
         })
         .addEventListener("change", handleChange);
 
@@ -740,7 +744,7 @@ function reRenderMaskCT2(bottleClone, indexBottleClone, arrColor, num_1) {
             }
         }
         listBottleTemp[indexBottleClone].arrColor = arrnew
-        
+
     } else reRenderMaskCloneT2(arrColor, num_1, bottleClone, survival, maxHeight)
     bottleClone.mask.rotation = bottleClone.bottle.rotation
     bottleClone.mask.x = bottleClone.bottle.x
@@ -755,13 +759,13 @@ function reRenderMaskCloneT2(arrColor, num_1, bottleClone, survival, maxHeight) 
         var rect = new createjs.Shape();
         var nY = 0, heightItemN;
         if (i == 0) {
-            heightItemN = i == arrColor.length - 1 ? heightItemDie * 3 + bottleBase.height/3 : heightItemDie;
+            heightItemN = i == arrColor.length - 1 ? heightItemDie * 3 + bottleBase.height / 3 : heightItemDie;
             rect.graphics.f(color).dr(0, 0, bottleBase.height * 1.5, heightItemN * 1.3);
             rect.y = nY;
             bottleClone.maskC.addChild(rect);
         }
         else if (i == 1) {
-            heightItemN = i == arrColor.length - 1 ? heightItemRest * arrColor[i].numColor + heightItemRest * 2  : heightItemRest * arrColor[i].numColor
+            heightItemN = i == arrColor.length - 1 ? heightItemRest * arrColor[i].numColor + heightItemRest * 2 : heightItemRest * arrColor[i].numColor
             nY = bottleClone.maskC.children[bottleClone.maskC.children.length - 1].y + heightItemDie
             rect.graphics.f(color).dr(0, 0, bottleBase.height * 1.5, heightItemN * 1.3);
             rect.y = nY;
