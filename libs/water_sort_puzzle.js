@@ -21,8 +21,8 @@ var map = [
     [-1, 4, 2, 2],
     [-1, 2, 4, 3],
     [-1, 8, 3, 3],
-    [-1, 8, 8, 8],
-    [-1, -1, -1, -1]
+    [-1, -1, -1, -1],
+    [-1, 8, 8, 8]
 ]
 // var map = [
 //     [-1, 2, 3, 3],
@@ -44,7 +44,7 @@ var listBottle = []
 var listBottleChoose = []
 
 var listBottleTemp = []
-var corner, install_now;
+var install_now;
 var listBottleA = [], listBottleB = [];
 
 async function gameinit() {
@@ -203,7 +203,7 @@ function setMap() {
             stage.addChild(maskC);
             maskC.mask = mask;
             stage.addChild(bottle)
-            listBottle.push({ bottle: bottle, mask: mask, maskC: maskC, status: true, pass: false })
+            listBottle.push({ bottle: bottle, mask: mask, maskC: maskC, status: true, proAdd: true, pass: false })
         } else {
             var iNew = i - 3
             var xb = (x + bottleBase.width) * iNew + bottleBase.startX
@@ -227,11 +227,16 @@ function setMap() {
             stage.addChild(maskC);
             maskC.mask = mask;
             stage.addChild(bottle)
-            listBottle.push({ bottle: bottle, mask: mask, maskC: maskC, status: true, pass: false })
+            listBottle.push({ bottle: bottle, mask: mask, maskC: maskC, status: true, proAdd: true, pass: false })
         }
     }
     renderConfetti()
     renderHand()
+    tutorial = setInterval(function () {
+        clearTutorial()
+        renderHand()
+    }, 3000);
+
 }
 function getMaskC(bottle) {
     var maskC = new createjs.Container()
@@ -249,15 +254,6 @@ function getMaskC(bottle) {
 function tick(event) {
     if (update) {
         stage.update(event);
-        // listBottle[1].bottle.rotation += 1
-        // listBottle[1].mask.rotation += 1
-
-        // listBottle[1].bottle.y += 0.1
-        // listBottle[1].mask.y += 0.1
-        // listBottle[1].maskC.y += 0.1
-        // listBottle[1].bottle.x += 0.1
-        // listBottle[1].mask.x += 0.1
-        // listBottle[1].maskC.x += 0.1
     }
 }
 function detectMobile() {
@@ -371,11 +367,7 @@ function getNumCv(color, arr, i) {
     return temp
 }
 function onPressMove(evt) {
-    if (pressMove) {
-        // var location = currentMouse(evt);
-        // listBottle[4].mask.x = location.x
-        // listBottle[4].mask.y = location.y
-    }
+    if (pressMove) { }
 }
 function currentMouse(evt) {
     return { x: evt.stageX, y: evt.stageY }
@@ -399,8 +391,11 @@ function getHeightMaskC(degrees) {
     return bottleBase.height * cosRotation
 }
 function upBottleChoose(newChoose) {
-    createjs.Tween.removeTweens(hand_tut);
-    stage.removeChild(hand_tut)
+    if (tutorialStatus) {
+        clearTutorial()
+        clearInterval(tutorial);
+        tutorialStatus = false
+    }
     var arr = map[newChoose]
     var arrColor = []
     var color1 = arr[0]
@@ -446,8 +441,7 @@ function upBottleChoose(newChoose) {
     createjs.Tween.get(maskC)
         .to({ y: listBottle[newChoose].maskC.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
 
-
-    listBottleTemp.push({ maskC: maskC, mask: mask, bottle: bottle, index: newChoose, arrColor: arrColor })
+    listBottleTemp.push({ maskC: maskC, mask: mask, bottle: bottle, index: newChoose, arrColor: arrColor, corner: null })
     listBottle[newChoose].mask.alpha = 0
     listBottle[newChoose].maskC.alpha = 0
     listBottle[newChoose].bottle.alpha = 0
@@ -475,83 +469,49 @@ function downBottleChoose(index, test) {
         })
 
 }
-function startMoveBottle(index, arrColor) {
+function startMoveBottle(index, indexColorCVArray) {
     var oldChoose = listBottleA[index];
     var newChoose = listBottleB[index];
     var newBottle = listBottle[newChoose].bottle;
-    var colorAdd = map[oldChoose][arrColor[0]]
+    var colorAdd = map[oldChoose][indexColorCVArray[0]]
     var indexAdd = map[newChoose].lastIndexOf(-1)
+    var bottleClone = getItemClone(listBottleTemp[index])
 
+
+    var num_1 = bottleClone.arrColor[0].color == -1 ? bottleClone.arrColor[0].numColor : 0
+    var indexBottom = indexColorCVArray[indexColorCVArray.length - 1]
+    bottleClone.corner = getRotation(indexBottom, num_1)
+    listBottleTemp[index] = bottleClone
     //edit map
-    arrColor.forEach(id => {
+    indexColorCVArray.forEach(id => {
         map[oldChoose][id] = -1
         map[newChoose][indexAdd] = colorAdd
         indexAdd--
     });
-    var bottleClone = listBottleTemp[index]
 
-    //create arr Object clone
+    //create array color newbottle
     var arrNewBottle = map[newChoose]
-    var arrayClone = []
-    if (arrNewBottle[0] == -1) {
-        arrayClone = [
-            { color: -1, numColor: arrNewBottle.lastIndexOf(-1) + 1 },
-            { color: colorAdd, numColor: arrColor.length }
-        ]
-        var startLoop = arrayClone[0].numColor + arrayClone[1].numColor
+    var arrayClone = separateOldAndNewColors(arrNewBottle, indexColorCVArray.length, colorAdd)
+    moveBottle(bottleClone, newBottle, index, num_1, arrayClone)
 
-        var color1 = arrNewBottle[startLoop]
-        var numColor1 = 1;
-        var i = startLoop + 1
-        do {
-            const color = arrNewBottle[i];
-            if (color1 == color) {
-                numColor1++
-                if (i == arrNewBottle.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
-            } else {
-                arrayClone.push({ color: color1, numColor: numColor1 })
-                color1 = color;
-                numColor1 = 1;
-                if (i == arrNewBottle.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
-            }
-            i++;
-        }
-        while (i < arrNewBottle.length);
-    } else {
-        var startLoop = arrColor.length
-        var colorAdd = arrNewBottle[0]
-        arrayClone = [
-            { color: colorAdd, numColor: arrColor.length }
-        ]
-        var color1 = arrNewBottle[arrColor.length]
-        var numColor1 = 1;
-        var i = startLoop + 1
-        do {
-            const color = arrNewBottle[i];
-            if (color1 == color) {
-                numColor1++
-                if (i == arrNewBottle.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
-            } else {
-                arrayClone.push({ color: color1, numColor: numColor1 })
-                color1 = color;
-                numColor1 = 1;
-                if (i == arrNewBottle.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
-            }
-            i++;
-        }
-        while (i < arrNewBottle.length);
-    }
-    var num_1 = bottleClone.arrColor[0].color == -1 ? bottleClone.arrColor[0].numColor : 0
-    var indexBottom = arrColor[arrColor.length - 1]
-    corner = getRotation(indexBottom, num_1)
+}
+function getItemClone(item) {
+    return { maskC: item.maskC, mask: item.mask, bottle: item.bottle, index: item.index, arrColor: item.arrColor, corner: item.corner }
+}
+function moveBottle(bottleClone, newBottle, index, num_1, arrayClone) {
+    var xNew = newBottle.x - bottleBase.width / 2
+    var yNew = newBottle.y - bottleBase.height * 0.9 / 3
+    var corner = bottleClone.corner
+
+    var arrColor1;
     createjs.Tween.get(bottleClone.bottle)
-        .to({ rotation: corner.r0, x: newBottle.x - bottleBase.width / 2, y: newBottle.y - bottleBase.height * 0.9 / 2 }, 500, createjs.Ease.linear)
+        .to({ rotation: corner.r0, x: xNew, y: yNew }, 500, createjs.Ease.linear)
         .call(() => {
             bottleClone.bottle.rotation = corner.r0
             arrColor1 = bottleClone.arrColor
             if (arrColor1[0].color == -1) arrColor1.shift();
             createjs.Tween.get(bottleClone.bottle)
-                .to({ rotation: corner.r1 }, 1000 + (arrColor.length - 1) * 500, createjs.Ease.linear)
+                .to({ rotation: corner.r1 }, 1000, createjs.Ease.linear)
                 .call(() => {
                     bottleClone.bottle.rotation = corner.r1
                     endMoveBottle(index)
@@ -564,7 +524,6 @@ function startMoveBottle(index, arrColor) {
     function handleChange1(event) {
         reRenderMaskCT1(bottleClone)
     }
-    var arrColor1;
     function handleChange2(event) {
         reRenderMaskCT2(bottleClone, index, arrColor1, num_1)
         renderNewMaskC(bottleClone, index, arrayClone)
@@ -630,6 +589,7 @@ function degrees_to_radians(degrees) {
     return degrees * (pi / 180);
 }
 function reRenderMaskCEnd(bottleClone, index) {
+    var corner = bottleClone.corner
     var oldsurvival = bottleClone.bottle.rotation / corner.r1;
     var survival = 1 - oldsurvival;
     var maxHeight = bottleBase.height * 0.9 * Math.cos(degrees_to_radians(bottleClone.bottle.rotation))
@@ -650,7 +610,7 @@ function reRenderMaskCEnd(bottleClone, index) {
                 heightItemN = i == arrnew.length - 1 ? heightItem * arrnew[i].numColor + heightItem * 2 : heightItem * arrnew[i].numColor
                 rect.graphics.f(color).dr(0, 0, bottleBase.height * 1.5, heightItemN * 1.2);
                 rect.y = nY
-            }else {
+            } else {
                 nY = bottleClone.maskC.children[bottleClone.maskC.children.length - 1].y + heightItemN;
                 heightItemN = i == arrnew.length - 1 ? heightItem * arrnew[i].numColor + heightItem * 2 : heightItem * arrnew[i].numColor
                 rect.graphics.f(color).dr(0, 0, bottleBase.height * 1.5, heightItemN * 1.2);
@@ -673,6 +633,8 @@ var dotC = new createjs.Container()
 var dot = new createjs.Shape();
 
 function reRenderMaskCT1(bottleClone) {
+
+    var corner = bottleClone.corner
     bottleClone.maskC.removeAllChildren();
     var oldsurvival = bottleClone.bottle.rotation / corner.r0;
     var survival = 1 - oldsurvival;
@@ -735,6 +697,8 @@ function reRenderMaskCloneT1(arrColor, bottleClone, survival, maxHeight) {
     }
 }
 function reRenderMaskCT2(bottleClone, indexBottleClone, arrColor, num_1) {
+
+    var corner = bottleClone.corner
     bottleClone.maskC.removeAllChildren();
     var oldsurvival = (bottleClone.bottle.rotation - corner.r0) / (corner.r1 - corner.r0);
     var survival = 1 - oldsurvival;
@@ -744,7 +708,7 @@ function reRenderMaskCT2(bottleClone, indexBottleClone, arrColor, num_1) {
     var arr = bottleClone.arrColor;
 
     const color = convertColor(map[listBottleB[indexBottleClone]][map[listBottleB[indexBottleClone]].lastIndexOf(-1) + 1]);
-    dot.graphics.f(color).dr(0, 0, bottleBase.width / 10, bottleBase.height + bottleBase.height * 0.85 / 2);
+    dot.graphics.f(color).dr(0, 0, bottleBase.width / 10, bottleBase.height + bottleBase.height * 0.9 / 3);
     var bottle = bottleClone.bottle
     dot.x = bottle.x - bottleBase.width * 0.06
     dot.y = bottle.y - bottleBase.height * 0.01
@@ -792,10 +756,7 @@ function reRenderMaskCT2(bottleClone, indexBottleClone, arrColor, num_1) {
                 bottleClone.maskC.addChild(rect);
             }
         }
-    } else
-        reRenderMaskCloneT2(arrColor, num_1, bottleClone, survival, maxHeight)
-    // bottleClone.maskC.x = bottleClone.bottle.x - bottleBase.height * 1.5
-    // bottleClone.maskC.y = bottleClone.bottle.y - bottleBase.height * 0.02 * oldsurvival
+    } else reRenderMaskCloneT2(arrColor, num_1, bottleClone, survival, maxHeight)
     bottleClone.mask.rotation = bottleClone.bottle.rotation
     bottleClone.mask.x = bottleClone.bottle.x
     bottleClone.mask.y = bottleClone.bottle.y
@@ -872,6 +833,8 @@ function getMaskCClone(arrColor) {
     return maskC
 }
 function getNewMaskCClone(arrColor, bottleClone) {
+
+    var corner = bottleClone.corner
     var oldsurvival = (bottleClone.bottle.rotation - corner.r0) / (corner.r1 - corner.r0);
     var survival = 1 - oldsurvival;
     var maskC = new createjs.Container();
@@ -1098,19 +1061,41 @@ function gameClose() {
 }
 var hand_tut
 function renderHand() {
+    stage.addChild(containerTutorial)
     hand_tut = new createjs.Sprite(spriteSheet, "hand_tut");
     hand_tut.scale = (stage.canvas.width / 9) / hand_tut.getBounds().width
-    hand_tut.x = stage.canvas.width / 4
+    hand_tut.x = (stage.canvas.width / 4) * 3
     hand_tut.y = stage.canvas.height * 5 / 6
     stage.addChild(hand_tut)
-    var bottle = listBottle[4].bottle
+    var bottle1 = listBottle[3].bottle
+    var bottle2 = listBottle[5].bottle
 
-    createjs.Tween.get(hand_tut, { loop: true, bounce: true })
+    createjs.Tween.get(hand_tut)
         .to({
-            x: bottle.x - bottleBase.width,
-            y: bottle.y + bottleBase.height / 2
-        }, 700, createjs.Ease.linear)
-        .wait(200)
+            x: bottle1.x - bottleBase.width,
+            y: bottle1.y + bottleBase.height / 2
+        }, 700, createjs.Ease.getPowInOut(2))
+        .call(() => {
+            getBottleTutorial(3)
+            createjs.Tween.get(hand_tut)
+                .wait(300)
+                .to({
+                    x: bottle2.x - bottleBase.width,
+                    y: bottle2.y + bottleBase.height / 2
+                }, 700, createjs.Ease.getPowInOut(2))
+                .call(() => {
+                    bottleFlicker(5)
+                    createjs.Tween.get(hand_tut)
+                        .wait(300)
+                        .to({
+                            x: (stage.canvas.width / 4) * 3,
+                            y: stage.canvas.height * 5 / 6
+                        }, 700, createjs.Ease.getPowInOut(2))
+                        .call(() => {
+                            downBottleTutorial(3)
+                        })
+                })
+        })
 }
 function getLinkInstall() {
     window.open("https://play.google.com/store/apps/details?id=sort.water.puzzle.pour.color.tubes.sorting.game")
@@ -1130,7 +1115,144 @@ function convertArrayColor(array) {
             numColor = 1;
             if (i == array.length - 1) arrayClone.push({ color: color, numColor: numColor })
         }
-
     }
     return arrayClone
+}
+function separateOldAndNewColors(array, num, colorAdd) {
+    var arrayClone = []
+    if (array[0] == -1) {
+        arrayClone = [
+            { color: -1, numColor: array.lastIndexOf(-1) + 1 },
+            { color: colorAdd, numColor: num }
+        ]
+        var startLoop = arrayClone[0].numColor + arrayClone[1].numColor
+
+        var color1 = array[startLoop]
+        var numColor1 = 1;
+        var i = startLoop + 1
+        do {
+            const color = array[i];
+            if (color1 == color) {
+                numColor1++
+                if (i == array.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
+            } else {
+                arrayClone.push({ color: color1, numColor: numColor1 })
+                color1 = color;
+                numColor1 = 1;
+                if (i == array.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
+            }
+            i++;
+        }
+        while (i < array.length);
+    } else {
+        var startLoop = num
+        var colorAdd = array[0]
+        arrayClone = [
+            { color: colorAdd, numColor: num }
+        ]
+        var color1 = array[num]
+        var numColor1 = 1;
+        var i = startLoop + 1
+        do {
+            const color = array[i];
+            if (color1 == color) {
+                numColor1++
+                if (i == array.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
+            } else {
+                arrayClone.push({ color: color1, numColor: numColor1 })
+                color1 = color;
+                numColor1 = 1;
+                if (i == array.length - 1) arrayClone.push({ color: color1, numColor: numColor1 })
+            }
+            i++;
+        }
+        while (i < array.length);
+    }
+    return arrayClone
+}
+
+var containerTutorial = new createjs.Container()
+var itemTutorial, tutorial, tutorialStatus = true;
+function getBottleTutorial(indexBottle) {
+
+    var arr = map[indexBottle]
+    var arrColor = []
+    var color1 = arr[0]
+    var numColor1 = 1;
+    for (let i = 1; i < arr.length; i++) {
+        const item = arr[i];
+        if (color1 == item) {
+            numColor1++
+            if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 })
+        } else {
+            arrColor.push({ color: color1, numColor: numColor1 })
+            color1 = item;
+            numColor1 = 1;
+            if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 })
+        }
+    }
+
+    var bottle = bottleBase.bottle.clone()
+    bottle.y = listBottle[indexBottle].bottle.y
+    bottle.x = listBottle[indexBottle].bottle.x
+
+
+    var maskC = getMaskCClone(arrColor)
+    maskC.y = bottle.y + bottleBase.height * 0.1
+    maskC.x = bottle.x - bottleBase.height * 1.5
+
+    var mask = listBottle[indexBottle].mask.clone()
+    mask.y = listBottle[indexBottle].mask.y
+
+    containerTutorial.removeAllChildren()
+    containerTutorial.addChild(maskC)
+    maskC.mask = mask
+    containerTutorial.addChild(bottle)
+
+
+    createjs.Tween.get(bottle)
+        .to({ y: listBottle[indexBottle].bottle.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
+    createjs.Tween.get(mask)
+        .to({ y: listBottle[indexBottle].mask.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
+    createjs.Tween.get(maskC)
+        .to({ y: listBottle[indexBottle].maskC.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
+    itemTutorial = { maskC: maskC, mask: mask, bottle: bottle, arrColor: arrColor }
+    listBottle[indexBottle].mask.alpha = 0
+    listBottle[indexBottle].maskC.alpha = 0
+    listBottle[indexBottle].bottle.alpha = 0
+}
+function downBottleTutorial(index) {
+    createjs.Tween.get(itemTutorial.bottle)
+        .to({ y: listBottle[index].bottle.y }, 200, createjs.Ease.linear)
+    createjs.Tween.get(itemTutorial.mask)
+        .to({ y: listBottle[index].mask.y }, 200, createjs.Ease.linear)
+    createjs.Tween.get(itemTutorial.maskC)
+        .to({ y: listBottle[index].maskC.y }, 200, createjs.Ease.linear)
+        .call(() => {
+            listBottle[index].mask.alpha = 1
+            listBottle[index].bottle.alpha = 1
+            listBottle[index].maskC.alpha = 1
+            reRenderMaskCMap(index)
+            containerTutorial.removeAllChildren()
+        })
+}
+function bottleFlicker(index) {
+    createjs.Tween.get(listBottle[index].bottle, { loop: true, bounce: true })
+        .to({ alpha: 0.5 }, 100, createjs.Ease.linear)
+    createjs.Tween.get(listBottle[index].maskC, { loop: true, bounce: true })
+        .to({ alpha: 0.5 }, 100, createjs.Ease.linear)
+}
+function clearTutorial() {
+    createjs.Tween.removeTweens(hand_tut);
+    stage.removeChild(hand_tut)
+    createjs.Tween.removeTweens(listBottle[5].bottle);
+    createjs.Tween.removeTweens(listBottle[5].maskC);
+    listBottle[5].bottle.alpha = 1
+    listBottle[5].maskC.alpha = 1
+
+    listBottle[3].mask.alpha = 1
+    listBottle[3].bottle.alpha = 1
+    listBottle[3].maskC.alpha = 1
+    reRenderMaskCMap(3)
+    containerTutorial.removeAllChildren()
 }
