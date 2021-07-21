@@ -1,5 +1,5 @@
 var isMobile = detectMobile();
-
+var radiusMask = isMobile == true ? 18: 25
 var width = window.innerWidth
     || document.documentElement.clientWidth
     || document.body.clientWidth;
@@ -195,7 +195,7 @@ function setMap() {
             maskC.x = bottle.x - bottleBase.height * 1.5
 
             var mask = new createjs.Shape();
-            mask.graphics.rc(0, 0, bottleBase.width * 0.85, bottleBase.height, 0, 0, 25, 25);
+            mask.graphics.rc(0, 0, bottleBase.width * 0.85, bottleBase.height, 0, 0, radiusMask, radiusMask);
             mask.regX = bottleBase.width * 0.85
             mask.x = xb + bottleBase.width * 0.93
             mask.y = stage.canvas.height * 2.5 / 10
@@ -218,7 +218,7 @@ function setMap() {
             maskC.x = bottle.x - bottleBase.height * 1.5
 
             var mask = new createjs.Shape();
-            mask.graphics.rc(0, 0, bottleBase.width * 0.85, bottleBase.height, 0, 0, 25, 25);
+            mask.graphics.rc(0, 0, bottleBase.width * 0.85, bottleBase.height, 0, 0, radiusMask, radiusMask);
 
             mask.regX = bottleBase.width * 0.85
             mask.x = xb + bottleBase.width * 0.93
