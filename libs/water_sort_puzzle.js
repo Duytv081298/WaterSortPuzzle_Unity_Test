@@ -236,7 +236,7 @@ function setMap() {
         clearTutorial()
         renderHand()
     }, 3000);
-
+    gameWin()
 }
 function getMaskC(bottle) {
     var maskC = new createjs.Container()
@@ -245,7 +245,7 @@ function getMaskC(bottle) {
         if (arr[i] >= 0) {
             const color = convertColor(arr[i]);
             var rect = new createjs.Shape();
-            rect.graphics.f(color).dr(0, (bottleBase.height * 0.9 / 4) * i, bottleBase.height * 1.5, i == arr.length - 1 ? (bottleBase.height * 0.91 / 4) * 3 : bottleBase.height * 0.91 / 4);
+            rect.graphics.f(color).dr(0, (bottleBase.height * 0.9 / 4) * i, bottleBase.height * 1.5, i == arr.length - 1 ? (bottleBase.height * 0.93 / 4) * 3 : bottleBase.height * 0.93 / 4);
             maskC.addChild(rect);
         }
     }
@@ -566,7 +566,7 @@ function endMoveBottle(index) {
     var bottleClone = listBottleTemp[index]
     var oldChoose = listBottleA[index];
     var newX = listBottle[oldChoose].bottle.x
-    
+
     var newChoose = listBottleB[index];
     createjs.Tween.get(bottleClone.bottle)
         .to({
@@ -1007,7 +1007,7 @@ function gameWin() {
     stage.removeChild(install_now);
     var particle = new createjs.Shape();
     particle.graphics.f("#000000").dr(0, 0, stage.canvas.width, stage.canvas.height);
-    particle.alpha = 0.4
+    particle.alpha = 0.7
 
 
     var cup = new createjs.Sprite(spriteSheet, "cup");
@@ -1035,8 +1035,25 @@ function gameWin() {
     btn_next.x = (stage.canvas.width - btn_next.getBounds().width * btn_next.scale) / 2
     btn_next.y = txt_wesome.y + cup.getBounds().height * cup.scale * 0.8
 
-    btn_next.addEventListener("click", () => { getLinkInstall() }, false);
     stage.addChild(particle, circle_decor, cup, decor, txt_wesome, btn_next)
+
+
+    var btn_nextx = btn_next.x,
+        btn_nexty = btn_next.y,
+        btn_nextscale = cup.scale;
+    createjs.Tween.get(btn_next, { loop: true })
+        .to(
+            {
+                scale: cup.scale - 0.1,
+                x: (stage.canvas.width - ((stage.canvas.width / 5) / btn_next.getBounds().width) * btn_next.getBounds().width) / 2,
+                y: btn_nexty - (stage.canvas.width / 5 - stage.canvas.width / 8) / 10,
+            },
+            350,
+            createjs.Ease.linear
+        )
+        .to({ scale: btn_nextscale, x: btn_nextx, y: btn_nexty }, 350, createjs.Ease.linear);
+    btn_next.addEventListener("click", () => { getLinkInstall() }, false);
+
 }
 function gameClose() {
     removeEvent()
