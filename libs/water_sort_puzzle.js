@@ -236,7 +236,6 @@ function setMap() {
         clearTutorial()
         renderHand()
     }, 3000);
-    gameWin()
 }
 function getMaskC(bottle) {
     var maskC = new createjs.Container()
