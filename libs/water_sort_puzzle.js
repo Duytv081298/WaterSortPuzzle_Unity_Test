@@ -1238,9 +1238,9 @@ function downBottleTutorial(index) {
 }
 function bottleFlicker(index) {
     createjs.Tween.get(listBottle[index].bottle, { loop: true, bounce: true })
-        .to({ alpha: 0.5 }, 100, createjs.Ease.linear)
+        .to({ alpha: 0.5 }, 150, createjs.Ease.linear)
     createjs.Tween.get(listBottle[index].maskC, { loop: true, bounce: true })
-        .to({ alpha: 0.5 }, 100, createjs.Ease.linear)
+        .to({ alpha: 0.85 }, 150, createjs.Ease.linear)
 }
 function clearTutorial() {
     createjs.Tween.removeTweens(hand_tut);
