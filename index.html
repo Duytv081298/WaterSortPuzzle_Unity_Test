@@ -69,11 +69,10 @@
             detectMobile();
             if (document.readyState === "complete") {
                 if (typeof mraid !== "undefined") {
-                    mraid.setOrientationProperties({ allowOrientationChange: false });
                     screenSize = mraid.getScreenSize();
                     width = screenSize.width;
                     height = screenSize.height;
-                    if (screenSize.width >= screenSize.height) {
+                    if (window.orientation == 90 || window.orientation == -90) {
                         height = screenSize.height;
                         width = height / 1.7;
                     }
@@ -93,15 +92,12 @@
             removeEvent()
             stage.removeAllChildren()
 
-            width = window.innerWidth
-                || document.documentElement.clientWidth
-                || document.body.clientWidth;
+            
+            screenSize = mraid.getScreenSize();
+            width = screenSize.width;
+            height = screenSize.height;
 
-            height = window.innerHeight
-                || document.documentElement.clientHeight
-                || document.body.clientHeight;
-
-            if (width >= height || !isMobile) width = height / 1.7;
+            if (width >= height ) width = height / 1.7;
             radiusMask = width / 22
 
             canvas = document.getElementById("myCanvas");
@@ -134,15 +130,6 @@
             canvas.removeEventListener("touchstart", onMouseDown, supportsPassive ? { passive: true } : false);
         }
         function setStage() {
-            width = window.innerWidth
-                || document.documentElement.clientWidth
-                || document.body.clientWidth;
-
-            height = window.innerHeight
-                || document.documentElement.clientHeight
-                || document.body.clientHeight;
-
-            if (width >= height || !isMobile) width = height / 1.7;
 
             radiusMask = width / 22
 
