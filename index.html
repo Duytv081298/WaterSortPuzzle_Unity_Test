@@ -91,12 +91,12 @@
             removeEvent()
             stage.removeAllChildren()
 
-            
+
             screenSize = mraid.getScreenSize();
             width = screenSize.width;
             height = screenSize.height;
 
-            if (width >= height ) width = height / 1.7;
+            if (width >= height) width = height / 1.7;
             radiusMask = width / 22
 
             canvas = document.getElementById("myCanvas");
@@ -389,7 +389,6 @@
             if (win == 12) return true
         }
         function onMouseDown(evt) {
-            console.log(111111111111);
             pressMove = true;
             var location = currentMouse(evt);
             var newChoose = checkClick(location)
@@ -657,10 +656,7 @@
                 }, 500, createjs.Ease.linear)
                 .call(() => {
                     reRenderMap(index)
-                    setTimeout(function () {
-                        checkWin(index)
-                        getGameStatus()
-                    }, 1000);
+                    checkWin(index)
                     bottleClone.bottle.rotation = 0
                     listBottle[oldChoose].status = true
                     listBottle[newChoose].proAdd = true
@@ -686,6 +682,7 @@
             var heightEmpty = (maxHeight / 4) * num_1 * survival
             var heightItem = (maxHeight - heightEmpty) / (4 - num_1)
             var heightItemN = 0;
+            if (oldsurvival == 0) getGameStatus()
             for (let i = 0; i < arrnew.length; i++) {
                 var nY = 0
                 if (arrnew[i].color >= 0) {
@@ -1101,14 +1098,18 @@
                 if (bottle.pass == true) win++
             }
             if (win == 6 && winSt) {
-                gameWin()
-                return true
+                winSt = false
+                removeEvent()
+                setTimeout(function () {
+                    gameWin()
+                }, 1500);
             }
-            else return false
         }
         function gameWin() {
-            winSt = false
             removeEvent()
+            clearTutorial()
+            clearInterval(tutorial);
+            clearInterval(tutorial3s);
             stage.removeChild(install_now);
             var particle = new createjs.Shape();
             particle.graphics.f("#000000").dr(0, 0, stage.canvas.width, stage.canvas.height);
@@ -1415,7 +1416,6 @@
                     }
                 }
             }
-            console.log({ bottle1: bottle1, bottle2: bottle2 });
             tutorialStatus = true
             renderHand(bottle1, bottle2)
             tutorial = setInterval(function () {
