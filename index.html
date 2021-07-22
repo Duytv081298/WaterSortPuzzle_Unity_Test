@@ -440,7 +440,12 @@
             if (pressMove) { }
         }
         function currentMouse(evt) {
-            return { x: evt.stageX, y: evt.stageY }
+            var x = evt.changedTouches[0].clientX,
+                y = evt.changedTouches[0].clientY;
+            if (screenSize.width >= screenSize.height) {
+                x = evt.changedTouches[0].clientX - (screenSize.width / 2 - width / 2);
+            }
+            return { x: x, y: y };
         }
         function checkClick(location) {
             var x = (location.x - bottleBase.startX) / (bottleBase.remainder + bottleBase.width)
