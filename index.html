@@ -198,11 +198,11 @@
             bg.scaleX = stage.canvas.width / bg.getBounds().width;
             bg.scaleY = stage.canvas.height / bg.getBounds().height;
 
-            var textTop = new createjs.Text('Tap to pour ', "22px Verdana", "#ffffff");
-            textTop.scaleX = (stage.canvas.width * 2 / 3) / textTop.getMeasuredWidth();
-            textTop.scaleY = textTop.scaleX * 1.3;
-            textTop.x = (stage.canvas.width - textTop.getMeasuredWidth() * textTop.scaleX) / 2 + textTop.getMeasuredWidth() * textTop.scaleX * 0.04;
-            textTop.y = stage.canvas.height / 12;
+            // var textTop = new createjs.Text('Tap to pour ', "22px Verdana", "#ffffff");
+            // textTop.scaleX = (stage.canvas.width * 2 / 3) / textTop.getMeasuredWidth();
+            // textTop.scaleY = textTop.scaleX * 1.3;
+            // textTop.x = (stage.canvas.width - textTop.getMeasuredWidth() * textTop.scaleX) / 2 + textTop.getMeasuredWidth() * textTop.scaleX * 0.04;
+            // textTop.y = stage.canvas.height / 12;
 
 
             var bottle = new createjs.Sprite(spriteSheet, "bottle");
@@ -223,7 +223,7 @@
             install_now.x = (stage.canvas.width - install_now.getBounds().width * install_now.scaleX) / 2;
             install_now.y = stage.canvas.height - install_now.getBounds().height * install_now.scaleY * 2;
 
-            stage.addChild(bg, textTop, install_now);
+            stage.addChild(bg, install_now);
             var install_nowx = install_now.x,
                 install_nowy = install_now.y,
                 install_nowscale = stage.canvas.width / 4.5 / install_now.getBounds().width;
