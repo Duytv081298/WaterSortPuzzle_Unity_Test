@@ -615,8 +615,7 @@
                 reRenderMaskCT1(bottleClone);
             }
             function handleChange2(event) {
-                // snd.play();
-                mraid.playAudio(snd);
+                snd.play();
                 listBottle[newChoose].proAdd = false;
                 reRenderMaskCT2(bottleClone, index, arrColor1, num_1);
                 renderNewMaskC(bottleClone, index, arrayClone);
@@ -667,8 +666,8 @@
                     y: oldChoose < 3 ? stage.canvas.height * 2.5 / 10 : stage.canvas.height * 5.5 / 10
                 }, 500, createjs.Ease.linear)
                 .call(() => {
-                    // snd.pause();
-                    // snd.currentTime = 0;
+                    snd.pause();
+                    snd.currentTime = 0;
                     reRenderMap(index);
                     checkWin(index);
                     bottleClone.bottle.rotation = 0;
@@ -1105,7 +1104,7 @@
             };
         };
         function gameWin() {
-            // soundWin.play();
+            soundWin.play();
             removeEvent()
             if (indexB1 && indexB2) {
                 clearTutorial(indexB1, indexB2)
