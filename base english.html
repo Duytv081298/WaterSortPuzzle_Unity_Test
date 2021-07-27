@@ -52,6 +52,11 @@
         var install_now;
         var listBottleA = [], listBottleB = [];
 
+        var containerTutorial = new createjs.Container();
+        var itemTutorial, tutorial, tutorialStatus = true;
+        var tutorial3s, tutorialtime = 6, tutorialSt2 = false;
+        var hand_tut, indexB1 = 3, indexB2 = 5;
+
         function setupViewport(width) {
             var element = document.querySelector("meta[name=viewport]");
             if (!element) {
@@ -84,11 +89,13 @@
             };
         };
         function changeOrientation(event) {
-            clearTutorial();
-            clearInterval(tutorial);
+            if (tutorialStatus) {
+                clearTutorial()
+                clearInterval(tutorial);
+            }
             if (tutorialSt2) clearInterval(tutorial3s);
-            removeEvent();
-            stage.removeAllChildren();
+            removeEvent()
+            stage.removeAllChildren()
             screenSize = mraid.getScreenSize();
             width = screenSize.width;
             height = screenSize.height;
@@ -287,24 +294,19 @@
                     listBottle.push({ bottle: bottle, mask: mask, maskC: maskC, status: true, proAdd: true, pass: false });
                 };
             };
-            if (!turn) renderConfetti();
-            if (tutorialStatus && !tutorialSt2) {
-                renderHand(3, 5);
+            if (turn) renderConfetti()
+            if (tutorialStatus) {
+                renderHand(indexB1, indexB2)
                 tutorial = setInterval(function () {
-                    clearTutorial();
-                    renderHand(3, 5);
+                    clearTutorial(indexB1, indexB2)
+                    renderHand(indexB1, indexB2)
                 }, 3000);
-            };
+            }
             if (tutorialSt2) {
-                clearTutorial();
+                clearTutorial(indexB1, indexB2)
                 clearInterval(tutorial);
                 clearInterval(tutorial3s);
-                tutorialStatus = false;
-                tutorial3s = setInterval(function () {
-                    tutorialtime -= 1;
-                    if (tutorialtime == 0) getTutorial3s();
-                }, 1000);
-            };
+            }
         };
         function getMaskC(bottle) {
             var maskC = new createjs.Container();
@@ -460,18 +462,35 @@
             var cosRotation = Math.cos(degrees_to_radians(degrees));
             return bottleBase.height * cosRotation;
         };
+        var tun2 = true
         function upBottleChoose(newChoose) {
-            tutorialtime = 6;
-            if (tutorialStatus) {
-                clearTutorial();
+            console.log({ indexB1: indexB1, indexB2: indexB2 });
+            tutorialtime = 6
+            if (tutorialSt2 == true && tun2 == false) {
+                clearTutorial(indexB1, indexB2)
                 clearInterval(tutorial);
                 clearInterval(tutorial3s);
-                tutorialStatus = false;
                 tutorial3s = setInterval(function () {
-                    tutorialtime -= 1;
-                    if (tutorialtime == 0) getTutorial3s();
+                    console.log(tutorialtime);
+                    tutorialtime -= 1
+                    if (tutorialtime == 0) { getTutorial3s() }
                 }, 1000);
-            };
+
+            }
+            if (tutorialStatus == true) {
+                clearTutorial(indexB1, indexB2)
+                clearInterval(tutorial);
+                tutorialStatus = false
+                tutorialSt2 = true
+                tutorial3s = setInterval(function () {
+                    console.log(tutorialtime);
+                    tutorialtime -= 1
+                    if (tutorialtime == 0) {
+                        tun2 = false
+                        getTutorial3s()
+                    }
+                }, 1000);
+            }
             var arr = map[newChoose];
             var arrColor = [];
             var color1 = arr[0];
@@ -1082,10 +1101,12 @@
             };
         };
         function gameWin() {
-            removeEvent();
-            clearTutorial();
-            clearInterval(tutorial);
-            clearInterval(tutorial3s);
+            removeEvent()
+            if (indexB1 && indexB2) {
+                clearTutorial(indexB1, indexB2)
+                clearInterval(tutorial);
+                clearInterval(tutorial3s);
+            }
             stage.removeChild(install_now);
             var particle = new createjs.Shape();
             particle.graphics.f("#000000").dr(0, 0, stage.canvas.width, stage.canvas.height);
@@ -1234,22 +1255,15 @@
             };
             return arrayClone;
         };
-
-        var containerTutorial = new createjs.Container();
-        var itemTutorial, tutorial, tutorialStatus = true;
-        var tutorial3s, tutorialtime = 6, tutorialSt2 = false;
-        var hand_tut, indexB1, indexB2;
-        function renderHand(i1, i2) {
-            indexB1 = i1;
-            indexB2 = i2;
-            stage.addChild(containerTutorial);
+        function renderHand(indexB1, indexB2) {
+            stage.addChild(containerTutorial)
             hand_tut = new createjs.Sprite(spriteSheet, "hand_tut");
-            hand_tut.scale = (stage.canvas.width / 9) / hand_tut.getBounds().width;
-            hand_tut.x = (stage.canvas.width / 4) * 3;
-            hand_tut.y = stage.canvas.height * 5 / 6;
-            stage.addChild(hand_tut);
-            var bottle1 = listBottle[indexB1].bottle;
-            var bottle2 = listBottle[indexB2].bottle;
+            hand_tut.scale = (stage.canvas.width / 9) / hand_tut.getBounds().width
+            hand_tut.x = (stage.canvas.width / 4) * 3
+            hand_tut.y = stage.canvas.height * 5 / 6
+            stage.addChild(hand_tut)
+            var bottle1 = listBottle[indexB1].bottle
+            var bottle2 = listBottle[indexB2].bottle
 
             createjs.Tween.get(hand_tut)
                 .to({
@@ -1257,7 +1271,7 @@
                     y: bottle1.y + bottleBase.height / 2
                 }, 700, createjs.Ease.getPowInOut(2))
                 .call(() => {
-                    getBottleTutorial(indexB1);
+                    getBottleTutorial(indexB1)
                     createjs.Tween.get(hand_tut)
                         .wait(300)
                         .to({
@@ -1265,7 +1279,7 @@
                             y: bottle2.y + bottleBase.height / 2
                         }, 700, createjs.Ease.getPowInOut(2))
                         .call(() => {
-                            bottleFlicker(indexB2);
+                            bottleFlicker(indexB2)
                             createjs.Tween.get(hand_tut)
                                 .wait(300)
                                 .to({
@@ -1274,129 +1288,130 @@
                                 }, 700, createjs.Ease.getPowInOut(2))
                                 .call(() => {
                                     downBottleTutorial(indexB1)
-                                });
-                        });
-                });
-        };
+                                })
+                        })
+                })
+        }
         function getBottleTutorial(indexBottle) {
-            var arr = map[indexBottle];
-            var arrColor = [];
-            var color1 = arr[0];
+            var arr = map[indexBottle]
+            var arrColor = []
+            var color1 = arr[0]
             var numColor1 = 1;
             for (let i = 1; i < arr.length; i++) {
                 const item = arr[i];
                 if (color1 == item) {
-                    numColor1++;
-                    if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 });
+                    numColor1++
+                    if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 })
                 } else {
-                    arrColor.push({ color: color1, numColor: numColor1 });
+                    arrColor.push({ color: color1, numColor: numColor1 })
                     color1 = item;
                     numColor1 = 1;
-                    if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 });
-                };
-            };
+                    if (i == arr.length - 1) arrColor.push({ color: color1, numColor: numColor1 })
+                }
+            }
 
-            var bottle = bottleBase.bottle.clone();
-            bottle.y = listBottle[indexBottle].bottle.y;
-            bottle.x = listBottle[indexBottle].bottle.x;
+            var bottle = bottleBase.bottle.clone()
+            bottle.y = listBottle[indexBottle].bottle.y
+            bottle.x = listBottle[indexBottle].bottle.x
 
 
-            var maskC = getMaskCClone(arrColor);
-            maskC.y = bottle.y + bottleBase.height * 0.1;
-            maskC.x = bottle.x - bottleBase.height * 1.5;
+            var maskC = getMaskCClone(arrColor)
+            maskC.y = bottle.y + bottleBase.height * 0.1
+            maskC.x = bottle.x - bottleBase.height * 1.5
 
-            var mask = listBottle[indexBottle].mask.clone();
-            mask.y = listBottle[indexBottle].mask.y;
+            var mask = listBottle[indexBottle].mask.clone()
+            mask.y = listBottle[indexBottle].mask.y
 
-            containerTutorial.removeAllChildren();
-            containerTutorial.addChild(maskC);
-            maskC.mask = mask;
-            containerTutorial.addChild(bottle);
+            containerTutorial.removeAllChildren()
+            containerTutorial.addChild(maskC)
+            maskC.mask = mask
+            containerTutorial.addChild(bottle)
 
 
             createjs.Tween.get(bottle)
-                .to({ y: listBottle[indexBottle].bottle.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear);
+                .to({ y: listBottle[indexBottle].bottle.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
             createjs.Tween.get(mask)
-                .to({ y: listBottle[indexBottle].mask.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear);
+                .to({ y: listBottle[indexBottle].mask.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
             createjs.Tween.get(maskC)
-                .to({ y: listBottle[indexBottle].maskC.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear);
-            itemTutorial = { maskC: maskC, mask: mask, bottle: bottle, arrColor: arrColor };
-            listBottle[indexBottle].mask.alpha = 0;
-            listBottle[indexBottle].maskC.alpha = 0;
-            listBottle[indexBottle].bottle.alpha = 0;
-        };
+                .to({ y: listBottle[indexBottle].maskC.y - bottleBase.height * 0.9 / 3 }, 100, createjs.Ease.linear)
+            itemTutorial = { maskC: maskC, mask: mask, bottle: bottle, arrColor: arrColor }
+            listBottle[indexBottle].mask.alpha = 0
+            listBottle[indexBottle].maskC.alpha = 0
+            listBottle[indexBottle].bottle.alpha = 0
+        }
         function downBottleTutorial(index) {
             createjs.Tween.get(itemTutorial.bottle)
-                .to({ y: listBottle[index].bottle.y }, 200, createjs.Ease.linear);
+                .to({ y: listBottle[index].bottle.y }, 200, createjs.Ease.linear)
             createjs.Tween.get(itemTutorial.mask)
-                .to({ y: listBottle[index].mask.y }, 200, createjs.Ease.linear);
+                .to({ y: listBottle[index].mask.y }, 200, createjs.Ease.linear)
             createjs.Tween.get(itemTutorial.maskC)
                 .to({ y: listBottle[index].maskC.y }, 200, createjs.Ease.linear)
                 .call(() => {
-                    listBottle[index].mask.alpha = 1;
-                    listBottle[index].bottle.alpha = 1;
-                    listBottle[index].maskC.alpha = 1;
-                    reRenderMaskCMap(index);
-                    containerTutorial.removeAllChildren();
-                });
-        };
+                    listBottle[index].mask.alpha = 1
+                    listBottle[index].bottle.alpha = 1
+                    listBottle[index].maskC.alpha = 1
+                    reRenderMaskCMap(index)
+                    containerTutorial.removeAllChildren()
+                })
+        }
         function bottleFlicker(index) {
             createjs.Tween.get(listBottle[index].bottle, { loop: true, bounce: true })
-                .to({ alpha: 0.5 }, 150, createjs.Ease.linear);
+                .to({ alpha: 0.5 }, 150, createjs.Ease.linear)
             createjs.Tween.get(listBottle[index].maskC, { loop: true, bounce: true })
-                .to({ alpha: 0.85 }, 150, createjs.Ease.linear);
-        };
-        function clearTutorial() {
+                .to({ alpha: 0.85 }, 150, createjs.Ease.linear)
+        }
+        function clearTutorial(indexB1, indexB2) {
             createjs.Tween.removeTweens(hand_tut);
-            stage.removeChild(hand_tut);
+            stage.removeChild(hand_tut)
             createjs.Tween.removeTweens(listBottle[indexB2].bottle);
             createjs.Tween.removeTweens(listBottle[indexB2].maskC);
-            listBottle[indexB2].bottle.alpha = 1;
-            listBottle[indexB2].maskC.alpha = 1;
+            listBottle[indexB2].bottle.alpha = 1
+            listBottle[indexB2].maskC.alpha = 1
 
-            listBottle[indexB1].mask.alpha = 1;
-            listBottle[indexB1].bottle.alpha = 1;
-            listBottle[indexB1].maskC.alpha = 1;
-            reRenderMaskCMap(indexB1);
-            containerTutorial.removeAllChildren();
-        };
+            listBottle[indexB1].mask.alpha = 1
+            listBottle[indexB1].bottle.alpha = 1
+            listBottle[indexB1].maskC.alpha = 1
+            containerTutorial.removeAllChildren()
+            indexB1 = null, indexB2 = null;
+        }
         function getTutorial3s() {
-            tutorialSt2 = true;
             var bottle1 = null, bottle2 = null;
             for (let i = 0; i < map.length; i++) {
                 const arrayColor = map[i];
-                var num_1 = arrayColor.lastIndexOf(-1);
-                var color_0 = arrayColor[num_1 + 1];
-                var numColor_0 = arrayColor.lastIndexOf(color_0) - num_1;
+                var num_1 = arrayColor.lastIndexOf(-1)
+                var color_0 = arrayColor[num_1 + 1]
+                var numColor_0 = arrayColor.lastIndexOf(color_0) - num_1
                 if (num_1 >= 0 && num_1 < 3) {
                     for (let j = 0; j < map.length; j++) {
                         const arrayColor2 = map[j];
                         if (arrayColor2[0] == -1) {
-                            var numNew_1 = arrayColor2.lastIndexOf(-1) + 1;
-                            var color = arrayColor2[numNew_1];
+                            var numNew_1 = arrayColor2.lastIndexOf(-1) + 1
+                            var color = arrayColor2[numNew_1]
                             if (numNew_1 == 4 && j != i) {
-                                bottle2 = j;
+                                bottle2 = j
                                 break;
                             }
                             else if (numNew_1 >= numColor_0 && color == color_0 && j != i) {
-                                bottle2 = j;
+                                bottle2 = j
                                 break;
-                            };
-                        };
-                    };
+                            }
+                        }
+                    }
                     if (bottle2 != null) {
-                        bottle1 = i;
+                        bottle1 = i
                         break;
-                    };
-                };
-            };
-            tutorialStatus = true;
-            renderHand(bottle1, bottle2);
+                    }
+                }
+            }
+            indexB1 = bottle1;
+            indexB2 = bottle2;
+            renderHand(indexB1, indexB2)
             tutorial = setInterval(function () {
-                clearTutorial();
-                renderHand(bottle1, bottle2);
+                clearTutorial(indexB1, indexB2)
+                renderHand(indexB1, indexB2)
             }, 3000);
-        };
+        }
+
     </script>
 </head>
 
